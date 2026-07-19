@@ -29,7 +29,11 @@ class PermissionTableSeeder extends Seeder
         foreach ($permissions as $permission) {
             Permission::updateOrCreate(
                 ['name' => $permission['name']],
-                ['module' => $permission['module'], 'label' => $permission['label']]
+                [
+                    'add_on' => 'country-gb',
+                    'module' => $permission['module'],
+                    'label' => $permission['label']
+                ]
             );
         }
     }
