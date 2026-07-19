@@ -14,7 +14,6 @@ interface UKSettingsProps {
 }
 
 interface UKSettingsData {
-    vat_number: string;
     company_number: string;
     utr: string;
     paye_reference: string;
@@ -33,7 +32,6 @@ export default function UKSettings({ userSettings, auth }: UKSettingsProps) {
     const [flash, setFlash] = useState<{ success?: string; error?: string }>({});
 
     const [formData, setFormData] = useState<UKSettingsData>({
-        vat_number: userSettings?.vat_number || userSettings?.tax_number || '',
         company_number: userSettings?.company_number || userSettings?.registration_number || '',
         utr: userSettings?.utr || '',
         paye_reference: userSettings?.paye_reference || '',
@@ -49,7 +47,6 @@ export default function UKSettings({ userSettings, auth }: UKSettingsProps) {
     useEffect(() => {
         if (userSettings) {
             setFormData({
-                vat_number: userSettings?.vat_number || userSettings?.tax_number || '',
                 company_number: userSettings?.company_number || userSettings?.registration_number || '',
                 utr: userSettings?.utr || '',
                 paye_reference: userSettings?.paye_reference || '',
@@ -91,7 +88,7 @@ export default function UKSettings({ userSettings, auth }: UKSettingsProps) {
                 <Building2 className="h-6 w-6" />
                 <div>
                     <h2 className="text-2xl font-bold">{t('UK Settings')}</h2>
-                    <p className="text-sm text-gray-500">UK-specific company, tax, and payroll configuration</p>
+                    <p className="text-sm text-gray-500">UK-specific tax, payroll, and compliance configuration</p>
                 </div>
             </div>
 
@@ -116,23 +113,14 @@ export default function UKSettings({ userSettings, auth }: UKSettingsProps) {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Building2 className="h-5 w-5" />
-                            Company Details
+                            Company Registration
                         </CardTitle>
                         <CardDescription>
-                            Companies House registration and identification details
+                            Companies House and HMRC identification details
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="vat_number">VAT Number</Label>
-                                <Input
-                                    id="vat_number"
-                                    value={formData.vat_number}
-                                    onChange={(e) => handleChange('vat_number', e.target.value)}
-                                    placeholder="GB123456789"
-                                />
-                            </div>
                             <div className="space-y-2">
                                 <Label htmlFor="company_number">Companies House Number</Label>
                                 <Input
@@ -151,28 +139,6 @@ export default function UKSettings({ userSettings, auth }: UKSettingsProps) {
                                     placeholder="1234567890"
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="fiscal_year_end">Fiscal Year End</Label>
-                                <select
-                                    id="fiscal_year_end"
-                                    value={formData.fiscal_year_end}
-                                    onChange={(e) => handleChange('fiscal_year_end', e.target.value)}
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                >
-                                    <option value="01-31">31 January</option>
-                                    <option value="02-28">28/29 February</option>
-                                    <option value="03-31">31 March</option>
-                                    <option value="04-30">30 April</option>
-                                    <option value="05-31">31 May</option>
-                                    <option value="06-30">30 June</option>
-                                    <option value="07-31">31 July</option>
-                                    <option value="08-31">31 August</option>
-                                    <option value="09-30">30 September</option>
-                                    <option value="10-31">31 October</option>
-                                    <option value="11-30">30 November</option>
-                                    <option value="12-31">31 December</option>
-                                </select>
-                            </div>
                         </div>
                     </CardContent>
                 </Card>
@@ -181,10 +147,10 @@ export default function UKSettings({ userSettings, auth }: UKSettingsProps) {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <FileText className="h-5 w-5" />
-                            Tax Details
+                            VAT Configuration
                         </CardTitle>
                         <CardDescription>
-                            VAT registration and tax scheme configuration
+                            VAT registration and scheme settings
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -224,54 +190,121 @@ export default function UKSettings({ userSettings, auth }: UKSettingsProps) {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Users className="h-5 w-5" />
-                            Payroll Details
+                            PAYE & Payroll
                         </CardTitle>
                         <CardDescription>
-                            PAYE and payroll configuration
+                            PAYE registration and payroll configuration
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="paye_reference">PAYE Reference</Label>
-                                <Input
-                                    id="paye_reference"
-                                    value={formData.paye_reference}
-                                    onChange={(e) => handleChange('paye_reference', e.target.value)}
-                                    placeholder="123/AB123456"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="accounts_office_reference">Accounts Office Reference</Label>
-                                <Input
-                                    id="accounts_office_reference"
-                                    value={formData.accounts_office_reference}
-                                    onChange={(e) => handleChange('accounts_office_reference', e.target.value)}
-                                    placeholder="123AB12345678"
-                                />
-                            </div>
-                            <div className="space-y-2 md:col-span-2">
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        id="cis_contractor_number"
-                                        checked={formData.cis_registered}
-                                        onChange={(e) => handleChange('cis_registered', e.target.checked)}
-                                        className="h-4 w-4"
-                                    />
-                                    <Label htmlFor="cis_contractor_number" className="cursor-pointer">
-                                        CIS Registered Contractor
-                                    </Label>
-                                </div>
-                                {formData.cis_registered && (
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="paye_registered"
+                                checked={formData.paye_registered}
+                                onChange={(e) => handleChange('paye_registered', e.target.checked)}
+                                className="h-4 w-4"
+                            />
+                            <Label htmlFor="paye_registered" className="cursor-pointer">
+                                PAYE Registered
+                            </Label>
+                        </div>
+
+                        {formData.paye_registered && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="paye_reference">PAYE Reference</Label>
                                     <Input
-                                        value={formData.cis_contractor_number}
-                                        onChange={(e) => handleChange('cis_contractor_number', e.target.value)}
-                                        placeholder="CIS Contractor Number"
-                                        className="mt-2"
+                                        id="paye_reference"
+                                        value={formData.paye_reference}
+                                        onChange={(e) => handleChange('paye_reference', e.target.value)}
+                                        placeholder="123/AB123456"
                                     />
-                                )}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="accounts_office_reference">Accounts Office Reference</Label>
+                                    <Input
+                                        id="accounts_office_reference"
+                                        value={formData.accounts_office_reference}
+                                        onChange={(e) => handleChange('accounts_office_reference', e.target.value)}
+                                        placeholder="123AB12345678"
+                                    />
+                                </div>
                             </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Users className="h-5 w-5" />
+                            CIS
+                        </CardTitle>
+                        <CardDescription>
+                            Construction Industry Scheme registration
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="cis_registered"
+                                checked={formData.cis_registered}
+                                onChange={(e) => handleChange('cis_registered', e.target.checked)}
+                                className="h-4 w-4"
+                            />
+                            <Label htmlFor="cis_registered" className="cursor-pointer">
+                                CIS Registered Contractor
+                            </Label>
+                        </div>
+
+                        {formData.cis_registered && (
+                            <div className="space-y-2">
+                                <Label htmlFor="cis_contractor_number">CIS Contractor Number</Label>
+                                <Input
+                                    id="cis_contractor_number"
+                                    value={formData.cis_contractor_number}
+                                    onChange={(e) => handleChange('cis_contractor_number', e.target.value)}
+                                    placeholder="CIS Contractor Number"
+                                />
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <FileText className="h-5 w-5" />
+                            Fiscal Year
+                        </CardTitle>
+                        <CardDescription>
+                            UK tax year end date
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="fiscal_year_end">Fiscal Year End</Label>
+                            <select
+                                id="fiscal_year_end"
+                                value={formData.fiscal_year_end}
+                                onChange={(e) => handleChange('fiscal_year_end', e.target.value)}
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            >
+                                <option value="01-31">31 January</option>
+                                <option value="02-28">28/29 February</option>
+                                <option value="03-31">31 March</option>
+                                <option value="04-30">30 April</option>
+                                <option value="05-31">31 May</option>
+                                <option value="06-30">30 June</option>
+                                <option value="07-31">31 July</option>
+                                <option value="08-31">31 August</option>
+                                <option value="09-30">30 September</option>
+                                <option value="10-31">31 October</option>
+                                <option value="11-30">30 November</option>
+                                <option value="12-31">31 December</option>
+                            </select>
                         </div>
                     </CardContent>
                 </Card>
