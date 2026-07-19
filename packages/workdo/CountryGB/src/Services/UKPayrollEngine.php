@@ -2,6 +2,9 @@
 
 namespace Workdo\CountryGB\Services;
 
+use App\Classes\Hooks;
+use App\Models\User;
+
 class UKPayrollEngine
 {
     private array $taxCodes = [
@@ -33,6 +36,117 @@ class UKPayrollEngine
         'employer' => 0.03,
         'minimum' => 0.08,
     ];
+
+    public static function registerHooks(): void
+    {
+        $engine = new self();
+
+        // Register UK-specific deductions into core payroll
+        Hooks::add_filter('payroll_calculate_deductions', [$engine, 'addPAYEDeductions'], 10, 3);
+        Hooks::add_filter('payroll_calculate_deductions', [$engine, 'addNIDeductions'], 20, 3);
+        Hooks::add_filter('payroll_calculate_deductions', [$engine, 'addPensionDeductions'], 30, 3);
+        Hooks::add_filter('payroll_calculate_allowances', [$engine, 'addPensionAllowance'], 10, 3);
+
+        // Modify gross/net pay for UK-specific adjustments
+        Hooks::add_filter('payroll_calculate_totals', [$engine, 'adjustNetPay'], 10, 3);
+
+        // Post-processing after payroll run (e.g., RTI submission)
+        Hooks::add_action('payroll_run_completed', [$engine, 'submitRTI'], 10, 2);
+    }
+
+    public function addPAYEDeductions(array $deductionData, $employee, $basicSalary): array
+    {
+        $company = $employee->user ?? User::find($employee->created_by ?? $employee->id);
+        $countryCode = $company->country_code ?? 'GB';
+
+        if (strtoupper($countryCode) !== 'GB') {
+            return $deductionData;
+        }
+
+        $taxCode = '1257L';
+        $userSettings = $company->userSettings ?? [];
+        if (!empty($userSettings->paye_reference)) {
+            $taxCode = $userSettings->paye_reference ?? '1257L';
+        }
+
+        $paye = $this->calculatePAYE($basicSalary, $taxCode);
+        $deductionData['breakdown']['PAYE Tax'] = $paye['tax'];
+        $deductionData['total'] += $paye['tax'];
+
+        return $deductionData;
+    }
+
+    public function addNIDeductions(array $deductionData, $employee, $basicSalary): array
+    {
+        $company = $employee->user ?? User::find($employee->created_by ?? $employee->id);
+        $countryCode = $company->country_code ?? 'GB';
+
+        if (strtoupper($countryCode) !== 'GB') {
+            return $deductionData;
+        }
+
+        $ni = $this->calculateNationalInsurance($basicSalary);
+        $deductionData['breakdown']['National Insurance'] = $ni['employee_ni'];
+        $deductionData['total'] += $ni['employee_ni'];
+
+        return $deductionData;
+    }
+
+    public function addPensionDeductions(array $deductionData, $employee, $basicSalary): array
+    {
+        $company = $employee->user ?? User::find($employee->created_by ?? $employee->id);
+        $countryCode = $company->country_code ?? 'GB';
+
+        if (strtoupper($countryCode) !== 'GB') {
+            return $deductionData;
+        }
+
+        $pension = $this->calculatePension($basicSalary);
+        $deductionData['breakdown']['Pension'] = $pension['employee_contribution'];
+        $deductionData['total'] += $pension['employee_contribution'];
+
+        return $deductionData;
+    }
+
+    public function addPensionAllowance(array $allowanceData, $employee, $basicSalary): array
+    {
+        $company = $employee->user ?? User::find($employee->created_by ?? $employee->id);
+        $countryCode = $company->country_code ?? 'GB';
+
+        if (strtoupper($countryCode) !== 'GB') {
+            return $allowanceData;
+        }
+
+        $pension = $this->calculatePension($basicSalary);
+        $allowanceData['breakdown']['Employer Pension'] = $pension['employer_contribution'];
+        $allowanceData['total'] += $pension['employer_contribution'];
+
+        return $allowanceData;
+    }
+
+    public function adjustNetPay(array $totals, $employee, $payroll): array
+    {
+        $company = $employee->user ?? User::find($employee->created_by ?? $employee->id);
+        $countryCode = $company->country_code ?? 'GB';
+
+        if (strtoupper($countryCode) !== 'GB') {
+            return $totals;
+        }
+
+        // UK-specific net pay adjustments can be applied here
+        // For example: student loan deductions, post-tax deductions
+        return $totals;
+    }
+
+    public function submitRTI($payroll, $entries): void
+    {
+        // RTI submission would happen here when HMRC integration is complete
+        // For now, this is a placeholder that logs the submission
+        \Log::info('UK RTI submission placeholder', [
+            'payroll_id' => $payroll->id,
+            'employee_count' => $entries->count(),
+        ]);
+    }
 
     public function calculatePAYE(float $grossPay, string $taxCode = '1257L', array $adjustments = []): array
     {
@@ -122,71 +236,6 @@ class UKPayrollEngine
             'employee_rate' => $employeeRate,
             'employer_rate' => $employerRate,
             'qualifying_earnings' => round($grossPay, 2),
-        ];
-    }
-
-    public function calculatePayPacket(array $payrollData): array
-    {
-        $grossPay = $payrollData['gross_pay'] ?? 0;
-        $taxCode = $payrollData['tax_code'] ?? '1257L';
-        $overtime = $payrollData['overtime'] ?? 0;
-        $bonus = $payrollData['bonus'] ?? 0;
-        $deductions = $payrollData['deductions'] ?? [];
-
-        $totalGross = $grossPay + $overtime + $bonus;
-
-        $paye = $this->calculatePAYE($totalGross, $taxCode, $payrollData['tax_adjustments'] ?? []);
-        $ni = $this->calculateNationalInsurance($totalGross);
-        $pension = $this->calculatePension($totalGross);
-
-        $totalDeductions = $paye['tax'] + $ni['employee_ni'] + $pension['employee_contribution'];
-
-        foreach ($deductions as $deduction) {
-            $totalDeductions += $deduction['amount'] ?? 0;
-        }
-
-        $netPay = $totalGross - $totalDeductions;
-
-        return [
-            'gross_pay' => round($totalGross, 2),
-            'paye_tax' => $paye,
-            'national_insurance' => $ni,
-            'pension' => $pension,
-            'other_deductions' => $deductions,
-            'total_deductions' => round($totalDeductions, 2),
-            'net_pay' => round($netPay, 2),
-            'employer_ni' => round($ni['employer_ni'], 2),
-            'employer_pension' => round($pension['employer_contribution'], 2),
-        ];
-    }
-
-    public function generateRTIFPS(array $payrollData): array
-    {
-        $employees = [];
-
-        foreach ($payrollData['employees'] as $employee) {
-            $payPacket = $this->calculatePayPacket($employee);
-
-            $employees[] = [
-                'employee_id' => $employee['employee_id'],
-                'nino' => $employee['nino'],
-                'name' => $employee['name'],
-                'gross_pay' => $payPacket['gross_pay'],
-                'paye_tax' => $payPacket['paye_tax']['tax'],
-                'employee_ni' => $payPacket['national_insurance']['employee_ni'],
-                'net_pay' => $payPacket['net_pay'],
-            ];
-        }
-
-        return [
-            'submission_type' => 'FPS',
-            'tax_period' => $payrollData['tax_period'] ?? date('Ym'),
-            'employer_reference' => $payrollData['employer_reference'] ?? '',
-            'payment_date' => $payrollData['payment_date'] ?? date('Y-m-d'),
-            'total_payments' => array_sum(array_column($employees, 'gross_pay')),
-            'total_tax_deducted' => array_sum(array_column($employees, 'paye_tax')),
-            'total_employee_ni' => array_sum(array_column($employees, 'employee_ni')),
-            'employees' => $employees,
         ];
     }
 

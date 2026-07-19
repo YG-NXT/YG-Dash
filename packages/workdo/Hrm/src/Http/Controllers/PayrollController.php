@@ -23,6 +23,7 @@ use Workdo\Hrm\Events\UpdatePayroll;
 use Workdo\Hrm\Events\DestroyPayroll;
 use Workdo\Hrm\Events\DestroySalarySlip;
 use Workdo\Hrm\Events\PaySalary;
+use App\Classes\Hooks;
 use App\Models\EmailTemplate;
 
 class PayrollController extends Controller
@@ -589,3 +590,12 @@ class PayrollController extends Controller
         }
     }
 }
+
+
+
+
+
+
+
+
+
