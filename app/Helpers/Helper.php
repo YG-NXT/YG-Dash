@@ -56,9 +56,8 @@ if (!function_exists('setSetting')) {
     {
         $createdBy = $userId ?? creatorId();
         
-        // If no user ID is available (e.g., during installation), use 0 as a fallback
         if ($createdBy === null) {
-            $createdBy = 0;
+            $createdBy = null;
         }
         
         Setting::updateOrCreate(
