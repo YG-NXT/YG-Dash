@@ -13,6 +13,8 @@ class UKDefaultSettingsSeeder extends Seeder
         $defaultSettings = $onboardingService->getDefaultSettings();
 
         foreach ($defaultSettings as $key => $value) {
+            // During installation, creatorId() may return null, so we pass it explicitly
+            // The setSetting function will handle null by using 0 as fallback
             setSetting($key, $value, creatorId());
         }
     }

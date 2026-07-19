@@ -31,13 +31,18 @@ if (!function_exists('company_country')) {
 
         $company = User::where('id', $user->created_by)->first();
 
-        return $company->country_code ?? config('countries.default', 'US');
+        return $company?->country_code ?? config('countries.default', 'US');
     }
 }
 
 if (!function_exists('creatorId')) {
     function creatorId()
     {
+        // During installation or when no user is authenticated, return null
+        if (!Auth::check() || !Auth::user()) {
+            return null;
+        }
+
         if (Auth::user()->type == 'superadmin' || Auth::user()->type == 'company') {
             return Auth::user()->id;
         } else {
@@ -50,13 +55,19 @@ if (!function_exists('setSetting')) {
     function setSetting(string $key, $value, $userId = null, $isPublic = true): void
     {
         $createdBy = $userId ?? creatorId();
+        
+        // If no user ID is available (e.g., during installation), use 0 as a fallback
+        if ($createdBy === null) {
+            $createdBy = 0;
+        }
+        
         Setting::updateOrCreate(
             ['key' => $key, 'created_by' => $createdBy],
             ['value' => $value, 'is_public' => $isPublic]
         );
 
         // Clear user-specific cache
-        if (Auth::check() && Auth::user()->type == 'superadmin'){
+        if (Auth::check() && Auth::user() && Auth::user()->type == 'superadmin'){
             Cache::forget('admin_settings');
             Cache::forget('admin_settings_public');
         }
