@@ -14,11 +14,8 @@ use Workdo\CountryGB\Services\NHSSpineService;
 use Workdo\CountryGB\Services\UKTaxEngine;
 use Workdo\CountryGB\Services\UKPayrollEngine;
 use Workdo\CountryGB\Services\UKValidationService;
-use Workdo\CountryGB\Services\UKPaymentGatewayService;
 use Workdo\CountryGB\Services\UKReportsService;
 use Workdo\CountryGB\Services\UKOnboardingService;
-use Workdo\CountryGB\Services\StripeUKService;
-use Workdo\CountryGB\Services\GoCardlessService;
 
 class CountryGBHooks
 {
@@ -40,15 +37,10 @@ class CountryGBHooks
         // Food safety
         $registry->register('FSA', new FSAService(), ['GB'], 'food_safety');
 
-        // Payment gateways
-        $registry->register('Stripe_UK', new StripeUKService(), ['GB'], 'payment_gateway');
-        $registry->register('GoCardless', new GoCardlessService(), ['GB'], 'payment_gateway');
-
         // Core services (not government, but UK-specific)
         $registry->register('UK_Tax_Engine', new UKTaxEngine(), ['GB'], 'tax_engine');
         $registry->register('UK_Payroll_Engine', new UKPayrollEngine(), ['GB'], 'payroll_engine');
         $registry->register('UK_Validation', new UKValidationService(), ['GB'], 'validation');
-        $registry->register('UK_Payment_Gateway', new UKPaymentGatewayService(), ['GB'], 'payment_gateway_config');
         $registry->register('UK_Reports', new UKReportsService(), ['GB'], 'reports');
         $registry->register('UK_Onboarding', new UKOnboardingService(), ['GB'], 'onboarding');
 
@@ -180,9 +172,9 @@ class CountryGBHooks
                 'icon' => 'building',
             ],
             [
-                'title' => 'GoCardless BACS',
-                'description' => 'UK B2B direct debit. Collect payments via BACS automatically.',
-                'icon' => 'credit-card',
+                'title' => 'UK Payroll (PAYE/RTI)',
+                'description' => 'Full PAYE payroll with RTI submission. Tax codes, NI, pension auto-enrollment.',
+                'icon' => 'users',
             ],
         ];
     }
@@ -258,7 +250,7 @@ class CountryGBHooks
             [
                 'name' => 'James Smith',
                 'role' => 'Owner, Manchester Restaurant Group',
-                'quote' => 'The FSA integration and GoCardless BACS payments saved us hours every week.',
+                'quote' => 'The UK payroll engine and Companies House integration saved us hours every week.',
                 'avatar' => null,
             ],
             [

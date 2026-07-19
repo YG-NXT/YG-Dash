@@ -188,11 +188,6 @@ class UKOnboardingService
                 'description' => 'Recommended for card payments, subscriptions, and Apple Pay/Google Pay',
                 'use_cases' => ['general', 'subscription', 'one_off'],
             ],
-            'gocardless' => [
-                'name' => 'GoCardless',
-                'description' => 'Recommended for B2B direct debit payments',
-                'use_cases' => ['b2b', 'direct_debit', 'subscription'],
-            ],
             'paypal' => [
                 'name' => 'PayPal UK',
                 'description' => 'Alternative payment method for UK customers',
