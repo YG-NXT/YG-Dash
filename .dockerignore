@@ -1,0 +1,16 @@
+node_modules
+vendor
+storage
+bootstrap/cache
+.git
+.gitignore
+README.md
+docker-compose.yml
+Dockerfile
+.env
+.env.backup
+.env.docker
+.phpunit.result.cache
+phpunit.xml
+public/hot
+public/storage

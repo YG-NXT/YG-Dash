@@ -1,0 +1,18 @@
+{
+    "name": "workdo/country-gb",
+    "description": "United Kingdom country package for DashSaaS",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Workdo\\CountryGB\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Workdo\\CountryGB\\Providers\\CountryGBServiceProvider"
+            ]
+        }
+    }
+}
