@@ -1,4 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
+import { useMemo } from 'react';
 
 // Import landing page components
 import Header from './components/Header';
@@ -58,7 +59,17 @@ export default function Marketplace({ packages = [], settings, landingPageSettin
     const isSectionVisible = (key: string) => {
         return settings?.config_sections?.section_visibility?.[key] !== false;
     };
-    
+
+    // Determine country context for marketplace hooks
+    const countryContext = useMemo(() => {
+        const company = auth?.user;
+        if (company?.country_code) {
+            return { country_code: company.country_code.toUpperCase(), isAuthenticated: true };
+        }
+        const defaultCountry = landingPageSettings?.default_country || 'US';
+        return { country_code: defaultCountry.toUpperCase(), isAuthenticated: false };
+    }, [auth?.user?.country_code, landingPageSettings?.default_country]);
+
     const sectionOrder = settings?.config_sections?.section_order || 
         ['header', 'hero', 'modules', 'dedication', 'screenshots', 'why_choose', 'cta', 'footer'];
     
@@ -71,19 +82,19 @@ export default function Marketplace({ packages = [], settings, landingPageSettin
             case 'header':
                 return <Header key={sectionKey} settings={updatedLandingPageSettings} />;
             case 'hero':
-                return <MarketplaceHero key={sectionKey} settings={settings} />;
+                return <MarketplaceHero key={sectionKey} settings={settings} countryContext={countryContext} />;
             case 'modules':
-                return <MarketplaceModules key={sectionKey} packages={packages} settings={settings} />;
+                return <MarketplaceModules key={sectionKey} packages={packages} settings={settings} countryContext={countryContext} />;
             case 'dedication':
-                return <Dedication key={sectionKey} settings={settings} />;
+                return <Dedication key={sectionKey} settings={settings} countryContext={countryContext} />;
             case 'screenshots':
                 return <Screenshots key={sectionKey} settings={settings} />;
             case 'why_choose':
-                return <MarketplaceWhyChoose key={sectionKey} settings={settings} />;
+                return <MarketplaceWhyChoose key={sectionKey} settings={settings} countryContext={countryContext} />;
             case 'cta':
-                return <CTA key={sectionKey} settings={updatedLandingPageSettings} />;
+                return <CTA key={sectionKey} settings={updatedLandingPageSettings} countryContext={countryContext} />;
             case 'footer':
-                return <Footer key={sectionKey} settings={updatedLandingPageSettings} />;
+                return <Footer key={sectionKey} settings={updatedLandingPageSettings} countryContext={countryContext} />;
             default:
                 return null;
         }

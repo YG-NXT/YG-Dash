@@ -5,5 +5,5 @@
     "description": "UK localization, tax, and government integrations",
     "version": "1.0.0",
     "package_name": "country-gb",
-    "display": false
+    "display": true
 }

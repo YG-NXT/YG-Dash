@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Workdo\LandingPage\Models\CustomPage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Workdo\LandingPage\Http\Requests\StoreLandingPageRequest;
 
 class LandingPageController extends Controller
@@ -51,10 +52,10 @@ class LandingPageController extends Controller
             $settingsData['testimonials'] = Hooks::apply_filters('landing_page_testimonials', [], $company);
             $settingsData['cta'] = Hooks::apply_filters('landing_page_cta', $settingsData['config_sections']['sections']['cta'] ?? [], $company);
         } else {
-            // Use default country for public landing page
-            $defaultCountry = $settingsData['default_country'] ?? 'US';
+            // Use detected/default country for public landing page
+            $detectedCountry = $this->detectVisitorCountry($request) ?? $settingsData['default_country'] ?? 'US';
             $fakeCompany = new \stdClass();
-            $fakeCompany->country_code = strtoupper($defaultCountry);
+            $fakeCompany->country_code = strtoupper($detectedCountry);
 
             $settingsData['hero'] = Hooks::apply_filters('landing_page_hero', $settingsData['config_sections']['sections']['hero'] ?? [], $fakeCompany);
             $settingsData['features'] = Hooks::apply_filters('landing_page_features', $settingsData['config_sections']['sections']['features'] ?? [], $fakeCompany);
@@ -71,6 +72,32 @@ class LandingPageController extends Controller
             ],
             'settings' => $settingsData
         ]);
+    }
+
+    private function detectVisitorCountry(Request $request): ?string
+    {
+        $ip = $request->ip();
+        
+        if (!$ip || $ip === '127.0.0.1' || $ip === '::1') {
+            return null;
+        }
+
+        $cacheKey = 'visitor_country_' . md5($ip);
+        
+        return Cache::remember($cacheKey, 86400, function () use ($ip) {
+            try {
+                $response = Http::timeout(3)->get("http://ip-api.com/json/{$ip}?fields=countryCode");
+                
+                if ($response->successful()) {
+                    $data = $response->json();
+                    return $data['countryCode'] ?? null;
+                }
+            } catch (\Exception $e) {
+                \Log::warning('IP geolocation failed: ' . $e->getMessage());
+            }
+            
+            return null;
+        });
     }
 
     public function seo(Request $request, $country = null)
