@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CheckCircle2, XCircle, Building2, FileText, Users } from 'lucide-react';
+import { CheckCircle2, XCircle, Building2, FileText, Users, Rocket } from 'lucide-react';
 
 interface UKSettingsProps {
     userSettings?: Record<string, string>;
@@ -84,6 +84,24 @@ export default function UKSettings({ userSettings, auth }: UKSettingsProps) {
 
     return (
         <div id="uk-settings" className="space-y-6">
+            {/* Onboarding link */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <Rocket className="h-5 w-5 text-blue-600" />
+                        <div>
+                            <h3 className="font-medium text-blue-900">UK Onboarding</h3>
+                            <p className="text-sm text-blue-700">Complete your UK business setup with Companies House, HMRC, and payment gateways.</p>
+                        </div>
+                    </div>
+                    <a
+                        href="/uk/onboarding"
+                        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
+                    >
+                        Start Onboarding
+                    </a>
+                </div>
+            </div>
             <div className="flex items-center gap-2 mb-6">
                 <Building2 className="h-6 w-6" />
                 <div>
@@ -318,3 +336,5 @@ export default function UKSettings({ userSettings, auth }: UKSettingsProps) {
         </div>
     );
 }
+
+

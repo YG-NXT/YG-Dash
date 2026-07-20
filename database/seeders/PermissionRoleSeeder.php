@@ -289,7 +289,7 @@ class PermissionRoleSeeder extends Seeder
                     'manage-helpdesk-replies', 'create-helpdesk-replies', 'delete-helpdesk-replies',
                     'manage-settings', 'edit-settings', 'manage-brand-settings', 'edit-brand-settings', 'manage-system-settings', 'edit-system-settings', 'manage-currency-settings', 'edit-currency-settings', 'manage-cache-settings', 'clear-cache', 'manage-cookie-settings', 'edit-cookie-settings', 'manage-seo-settings', 'edit-seo-settings', 'manage-storage-settings', 'edit-storage-settings', 'manage-email-settings', 'edit-email-settings', 'test-email','manage-email-notification-settings','manage-pusher-settings', 'edit-pusher-settings','manage-notification-templates','edit-notification-templates','manage-bank-transfer-settings', 'edit-bank-transfer-settings',
                     'manage-languages','create-languages', 'edit-languages', 'manage-media', 'manage-own-media', 'create-media', 'download-media', 'delete-media', 'manage-media-directories', 'manage-own-media-directories', 'manage-any-media-directories', 'create-media-directories', 'edit-media-directories', 'delete-media-directories',
-                    'manage-add-on', 'manage-actions', 'manage-country-packages','manage-email-templates', 'edit-email-templates',
+                    'manage-add-on', 'manage-actions', 'manage-country-packages','manage-email-templates', 'edit-email-templates', 'manage-uk-settings',
                     'manage-plans', 'manage-any-plans', 'manage-own-plans', 'view-plans', 'create-plans', 'edit-plans', 'delete-plans',
                     'manage-coupons', 'manage-any-coupons', 'manage-own-coupons', 'view-coupons', 'create-coupons', 'edit-coupons', 'delete-coupons',
                     'manage-bank-transfer-requests', 'approve-bank-transfer-requests', 'reject-bank-transfer-requests','delete-bank-transfer-requests',
@@ -367,3 +367,5 @@ class PermissionRoleSeeder extends Seeder
         User::MakeRole($company->id);
     }
 }
+
+

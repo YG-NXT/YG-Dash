@@ -98,3 +98,4 @@ class UKOnboardingController extends Controller
         return redirect()->route('dashboard')->with('success', 'Your UK account is ready. Welcome to DashSaaS!');
     }
 }
+
