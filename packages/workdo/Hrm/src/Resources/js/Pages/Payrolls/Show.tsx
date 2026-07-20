@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
-import { Calculator, Users, DollarSign, Calendar, Download, Eye, Trash2, CreditCard } from "lucide-react";
+import { Calculator, Users, DollarSign, Calendar, Download, Eye, Trash2, CreditCard, FileText } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDate, formatCurrency } from '@/utils/helpers';
 
@@ -58,6 +58,12 @@ interface Payroll {
     total_net_pay: number;
     employee_count: number;
     payroll_entries: PayrollEntry[];
+}
+
+interface CountryDocument {
+    id: string;
+    label: string;
+    url: string;
 }
 
 interface ShowProps {
@@ -393,3 +399,6 @@ export default function Show() {
         </AuthenticatedLayout>
     );
 }
+
+
+
