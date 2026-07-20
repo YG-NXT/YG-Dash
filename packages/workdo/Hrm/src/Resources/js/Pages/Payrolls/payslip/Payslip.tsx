@@ -57,7 +57,7 @@ interface PayslipProps {
 
 export default function Payslip() {
     const { t } = useTranslation();
-    const { payrollEntry } = usePage<PayslipProps>().props;
+    const { payrollEntry, countryDocuments } = usePage<PayslipProps>().props;
     const [isDownloading, setIsDownloading] = useState(false);
     
     // signature
@@ -336,6 +336,29 @@ export default function Payslip() {
                 </div>
             </div>
 
+                {/* Country-specific payroll documents */}
+                {(payrollEntry as any).countryDocuments && (payrollEntry as any).countryDocuments.length > 0 && (
+                    <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded">
+                        <h3 className="text-sm font-semibold text-gray-700 mb-3">Country Documents</h3>
+                        <div className="flex flex-wrap gap-2">
+                            {(payrollEntry as any).countryDocuments.map((doc: any) => (
+                                <a
+                                    key={doc.id}
+                                    href={doc.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                >
+                                    <svg className="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    {doc.label}
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
             <style>{`
                 body {
                     -webkit-print-color-adjust: exact;
@@ -367,4 +390,5 @@ export default function Payslip() {
         </div>
     );
 }
+
 

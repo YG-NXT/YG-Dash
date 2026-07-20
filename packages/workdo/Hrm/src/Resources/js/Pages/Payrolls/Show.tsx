@@ -68,6 +68,7 @@ interface CountryDocument {
 
 interface ShowProps {
     payroll: Payroll;
+    countryDocuments?: CountryDocument[];
     auth: {
         user: {
             permissions: string[];
@@ -77,7 +78,7 @@ interface ShowProps {
 
 export default function Show() {
     const { t } = useTranslation();
-    const { payroll, auth } = usePage<ShowProps>().props;
+    const { payroll, auth, countryDocuments } = usePage<ShowProps>().props;
     const [selectedPayrollEntry, setSelectedPayrollEntry] = useState<PayrollEntry | null>(null);
     const [isPayslipModalOpen, setIsPayslipModalOpen] = useState(false);
     
@@ -241,6 +242,19 @@ export default function Show() {
                                 </TooltipContent>
                             </Tooltip>
                         )}
+
+                        {(payroll as any).countryDocuments && (payroll as any).countryDocuments.length > 0 && (
+                            <Tooltip delayDuration={0}>
+                                <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="sm" onClick={() => window.open((payroll as any).countryDocuments[0].url, '_blank')} className="h-8 w-8 p-0 text-indigo-600 hover:text-indigo-700">
+                                        <FileText className="h-4 w-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>UK Documents</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        )}
                     </TooltipProvider>
                 </div>
             )
@@ -399,6 +413,8 @@ export default function Show() {
         </AuthenticatedLayout>
     );
 }
+
+
 
 
 
